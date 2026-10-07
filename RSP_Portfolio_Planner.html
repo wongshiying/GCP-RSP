@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSP Portfolio Planner</title>
+<style>
+:root{--bg:#f4f6f7;--card:#fff;--ink:#16252b;--mute:#5d6d73;--line:#dde4e7;--accent:#0f4c5c;--accent-soft:#e3eef0;--ok:#1f7a4d;--ok-bg:#e4f4ea;--warn:#a15c00;--warn-bg:#fdf0dc;--bad:#a8322d;--bad-bg:#fbe7e5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,sans-serif;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 16px 56px}
+header{background:var(--accent);color:#fff;border-radius:16px;padding:28px 28px 24px;margin-bottom:20px}
+header h1{margin:0 0 4px;font-size:28px;letter-spacing:.2px}
+header p{margin:0;opacity:.88}
+header .tag{display:inline-block;margin-top:12px;background:rgba(255,255,255,.14);border-radius:999px;padding:3px 12px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(22,37,43,.06)}
+h2{font-size:18px;margin:28px 0 12px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.kpi .l{font-size:13px;color:var(--mute)}
+.kpi .v{font-size:24px;font-weight:700;margin-top:2px}
+.kpi .s{font-size:12px;color:var(--mute)}
+.badge{display:inline-block;border-radius:999px;padding:2px 12px;font-size:13px;font-weight:600;margin-top:6px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}.b-bad{background:var(--bad-bg);color:var(--bad)}
+.bar{position:relative;height:10px;background:var(--line);border-radius:6px;margin:12px 0 4px}
+.bar .zone{position:absolute;top:0;bottom:0;left:50%;width:10%;background:#a9cfb9;border-radius:2px}
+.bar .dot{position:absolute;top:-4px;width:6px;height:18px;border-radius:3px;background:var(--accent);transform:translateX(-3px)}
+.presets{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--accent);background:#fff;color:var(--accent);padding:9px 16px;font-weight:600}
+button:hover{background:var(--accent-soft)}
+button.on{background:var(--accent);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #7fb3bf;outline-offset:2px}
+.fund h3{margin:0 0 2px;font-size:16px}
+.role{display:inline-block;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600;border-radius:6px;padding:1px 8px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-top:1px dashed var(--line)}
+.row:first-of-type{margin-top:10px}
+.row b{font-weight:600}
+.msg{font-size:12.5px;color:var(--warn);min-height:18px;margin-top:4px}
+.note{font-size:12.5px;color:var(--mute);margin-top:8px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{font-size:12.5px;color:var(--mute);font-weight:600}
+tfoot td{font-weight:700;border-bottom:none}
+.empty{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 14px;margin-top:14px;font-weight:600;display:none}
+.callout{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:13.5px;margin-top:12px}
+.final{border-left:4px solid var(--accent)}
+.final ul{margin:6px 0 0;padding-left:20px}
+@media(max-width:820px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}header h1{font-size:23px}}
+@media(max-width:420px){.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>RSP Portfolio Planner</h1>
+  <p>5-Year Monthly Investment Planning</p>
+  <span class="tag">RM300 / month · 60 months</span>
+</header>
+
+<h2 style="margin-top:0">Portfolio Overview</h2>
+<div class="grid g4">
+  <div class="card kpi"><div class="l">Monthly RSP</div><div class="v" id="kMonthly">-</div><div class="s">每月总投入</div></div>
+  <div class="card kpi"><div class="l">5-Year Principal</div><div class="v" id="kPrincipal">-</div><div class="s" id="kPrincipalS">-</div></div>
+  <div class="card kpi"><div class="l">Total Sales Charges + SST</div><div class="v" id="kCost">-</div><div class="s" id="kCostS">-</div></div>
+  <div class="card kpi"><div class="l">Estimated Equity Exposure</div><div class="v" id="kEq">-</div>
+    <div class="bar"><div class="zone"></div><div class="dot" id="eqDot"></div></div>
+    <div class="s">Target: 50% – 60%</div>
+    <span class="badge" id="eqBadge">-</span>
+  </div>
+</div>
+<div class="card" style="margin-top:14px"><div id="eqText">-</div></div>
+<div class="empty" id="emptyMsg">Please enter a monthly RSP amount.</div>
+
+<h2>Presets</h2>
+<div class="presets">
+  <button id="p1" type="button">Balanced Growth (100 / 100 / 100)</button>
+  <button id="p2" type="button">Growth Tilt (150 / 150 / 0)</button>
+  <button id="p3" type="button">Reset</button>
+</div>
+
+<h2>Fund Input</h2>
+<div class="grid g3" id="funds"></div>
+
+<h2>Portfolio Allocation</h2>
+<div class="card tbl">
+<table>
+  <thead><tr><th>Fund</th><th>Monthly RSP</th><th>Portfolio %</th><th>Equity Ref.</th><th>Effective Sales Cost</th><th>Monthly Sales Cost</th></tr></thead>
+  <tbody id="allocBody"></tbody>
+  <tfoot id="allocFoot"></tfoot>
+</table>
+</div>
+
+<h2>Estimated 5-Year Value</h2>
+<div class="card tbl">
+<table>
+  <thead><tr><th>Fund</th><th>Historical 5Y CAGR</th><th>Total Paid In</th><th>Sales Cost + SST</th><th>Net Invested</th><th>Estimated Value</th></tr></thead>
+  <tbody id="valBody"></tbody>
+  <tfoot id="valFoot"></tfoot>
+</table>
+</div>
+<div class="callout"><b>说明：</b>以上估值采用各基金过去5年年化回报率（5Y CAGR）作为历史参考，并以每月定投及复利方式进行模拟。实际未来回报可能明显高于或低于此估算，历史表现不代表未来表现。</div>
+<p class="note">本模拟已将每月 RSP 的 Sales Charge + SST 先扣除后再进行投资计算。不再额外扣除 Fund Management Fee，因为基金公布的 NAV / 历史回报通常已反映基金内部费用。</p>
+<p class="note">Fund distributions are assumed to remain within the original fund for this planning illustration. Cross-fund redirection may involve additional sales charges and SST.</p>
+
+<h2>Important Note</h2>
+<div class="card final">
+  <ul>
+    <li>本工具仅用于投资组合规划及情景模拟，不构成投资建议。</li>
+    <li>Historical 5Y CAGR 仅作为历史参考，并不代表未来回报。</li>
+    <li>Next-G Connectivity 属于高波动成长型基金，其历史表现波动明显高于另外两只基金。</li>
+    <li>实际投资结果会受到市场表现、投资时点、汇率、费用、基金分派及其他因素影响。</li>
+  </ul>
+  <div class="callout"><b>Planning Principle:</b> 固定 RSP，定期检视；如未来需要降低风险，可优先通过调整未来 RSP 配置，而不是频繁卖出及转换现有基金。</div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var SST = 0.08, MONTHS = 60, MIN_RSP = 100, TGT_LO = 50, TGT_HI = 60;
+  var funds = [
+    {id:"f1", name:"Principal Islamic Lifetime Balanced Fund – Class MYR", role:"Core Growth", eq:50, cagr:5.77, charge:5.0, choices:[5.0,6.5], rsp:100},
+    {id:"f2", name:"Principal Next-G Connectivity Fund – Class MYR-Hedged", role:"Growth Satellite", eq:95, cagr:11.81, charge:5.0, choices:null, rsp:100},
+    {id:"f3", name:"RHB GoldenLife Today", role:"Defensive Stabilizer", eq:20, cagr:4.00, charge:0.75, choices:null, rsp:100}
+  ];
+
+  function rm(n){ if(!isFinite(n)) n=0; return "RM " + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function pct(n,d){ if(!isFinite(n)) n=0; return n.toFixed(d==null?2:d)+"%"; }
+  function effCost(f){ return f.charge/100*(1+SST); }
+  function el(id){ return document.getElementById(id); }
+
+  // build cards
+  var box = el("funds");
+  funds.forEach(function(f,i){
+    var d = document.createElement("div");
+    d.className = "card fund";
+    var chargeHtml = f.choices
+      ? '<label for="c'+i+'">Sales Charge</label><select id="c'+i+'">'+f.choices.map(function(c){return '<option value="'+c+'"'+(c===f.charge?' selected':'')+'>'+c.toFixed(1)+'%</option>';}).join("")+'</select>'
+      : '<div class="row"><span>Sales Charge</span><b>'+f.charge.toFixed(2)+'%</b></div>';
+    d.innerHTML =
+      '<h3>'+f.name+'</h3><span class="role">'+f.role+'</span>'+
+      '<label for="r'+i+'">Monthly RSP (RM)</label>'+
+      '<input type="number" id="r'+i+'" min="0" step="10" inputmode="decimal" value="'+f.rsp+'">'+
+      '<div class="msg" id="m'+i+'"></div>'+
+      chargeHtml+
+      '<div class="row"><span>SST</span><b>另加 8% SST</b></div>'+
+      '<div class="row"><span>Effective Sales Cost</span><b id="e'+i+'">-</b></div>'+
+      '<div class="row"><span>Equity Reference</span><b>'+f.eq+'%</b></div>'+
+      '<div class="row"><span>Historical 5Y CAGR</span><b>'+f.cagr.toFixed(2)+'%</b></div>'+
+      (i===1?'<div class="note">高波动 Growth Satellite，11.81% 是历史数字，不是未来保证收益。</div>':'');
+    box.appendChild(d);
+    el("r"+i).addEventListener("input", function(){
+      var v = parseFloat(this.value); f.rsp = (isFinite(v) && v>0) ? v : 0; update();
+    });
+    if(f.choices) el("c"+i).addEventListener("change", function(){ f.charge = parseFloat(this.value); update(); });
+  });
+
+  function setRsp(a){ a.forEach(function(v,i){ funds[i].rsp=v; el("r"+i).value=v; }); update(); }
+  el("p1").onclick = function(){ setRsp([100,100,100]); };
+  el("p2").onclick = function(){ setRsp([150,150,0]); };
+  el("p3").onclick = function(){ setRsp([100,100,100]); };
+
+  function simulate(f){
+    var net = f.rsp*(1-effCost(f));
+    var mr = Math.pow(1+f.cagr/100, 1/12)-1;
+    var bal = 0;
+    for(var m=0;m<MONTHS;m++){ bal = bal*(1+mr)+net; }
+    return bal;
+  }
+
+  function update(){
+    var total = funds.reduce(function(s,f){return s+f.rsp;},0);
+    var cost = 0, eqSum = 0, paid = 0, val = 0, net = 0;
+    funds.forEach(function(f,i){
+      el("e"+i).textContent = pct(effCost(f)*100);
+      el("m"+i).textContent = (f.rsp>0 && f.rsp<MIN_RSP) ? "每只基金的 RSP 最低建议为 RM100。" : "";
+      cost += f.rsp*effCost(f); eqSum += f.rsp*f.eq;
+    });
+    el("emptyMsg").style.display = total>0 ? "none" : "block";
+
+    var eq = total>0 ? eqSum/total : 0;
+    el("kMonthly").textContent = rm(total);
+    el("kPrincipal").textContent = rm(total*MONTHS);
+    el("kPrincipalS").textContent = rm(total)+" × "+MONTHS;
+    el("kCost").textContent = rm(cost*MONTHS);
+    el("kCostS").textContent = rm(cost)+" / month × "+MONTHS;
+    el("kEq").textContent = total>0 ? pct(eq,1) : "-";
+    el("eqDot").style.left = Math.max(0,Math.min(100,eq))+"%";
+
+    var b = el("eqBadge"), t = el("eqText");
+    if(total<=0){ b.textContent="-"; b.className="badge"; t.textContent="Please enter a monthly RSP amount."; }
+    else if(eq<TGT_LO){ b.textContent="Below Target"; b.className="badge b-warn"; t.innerHTML="<b>Below Target</b>　当前组合的股票资产比例低于目标范围。"; }
+    else if(eq>TGT_HI){ b.textContent="Above Target"; b.className="badge b-bad"; t.innerHTML="<b>Above Target</b>　当前组合的股票资产比例高于目标范围。"; }
+    else { b.textContent="Within Target"; b.className="badge b-ok"; t.innerHTML="<b>Within Target</b>　当前组合的股票资产比例处于目标范围内。"; }
+
+    var ab="", vb="";
+    funds.forEach(function(f){
+      var share = total>0 ? f.rsp/total*100 : 0;
+      ab += "<tr><td>"+f.name+"</td><td>"+rm(f.rsp)+"</td><td>"+pct(share)+"</td><td>"+f.eq+"%</td><td>"+pct(effCost(f)*100)+"</td><td>"+rm(f.rsp*effCost(f))+"</td></tr>";
+      var fp = f.rsp*MONTHS, fc = f.rsp*effCost(f)*MONTHS, fv = f.rsp>0 ? simulate(f) : 0;
+      paid += fp; net += fp-fc; val += fv;
+      vb += "<tr><td>"+f.name+"</td><td>"+pct(f.cagr)+"</td><td>"+rm(fp)+"</td><td>"+rm(fc)+"</td><td>"+rm(fp-fc)+"</td><td>"+rm(fv)+"</td></tr>";
+    });
+    el("allocBody").innerHTML = ab;
+    el("allocFoot").innerHTML = "<tr><td>Total</td><td>"+rm(total)+"</td><td>"+(total>0?"100.00%":"0.00%")+"</td><td>"+(total>0?pct(eq,1):"-")+"</td><td>"+(total>0?pct(cost/total*100):"-")+"</td><td>"+rm(cost)+"</td></tr>";
+    el("valBody").innerHTML = vb;
+    el("valFoot").innerHTML = "<tr><td>Total Estimated Portfolio Value</td><td></td><td>"+rm(paid)+"</td><td>"+rm(cost*MONTHS)+"</td><td>"+rm(net)+"</td><td>"+rm(val)+"</td></tr>";
+
+    var s1 = funds[0].rsp===100&&funds[1].rsp===100&&funds[2].rsp===100;
+    var s2 = funds[0].rsp===150&&funds[1].rsp===150&&funds[2].rsp===0;
+    el("p1").className = s1?"on":""; el("p2").className = s2?"on":"";
+  }
+  update();
+})();
+</script>
+</body>
+</html>
